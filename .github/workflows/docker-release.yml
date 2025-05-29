@@ -5,7 +5,7 @@ on:
       - published
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: xmplusdev/xmplus
+  IMAGE_NAME: hadimousavi79/xmplus
 
 jobs:
   build:
