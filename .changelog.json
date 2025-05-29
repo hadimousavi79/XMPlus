@@ -1,0 +1,6 @@
+[
+  {
+    "name": "ReverseConfig support",
+    "description": "Add ReverseConfigPath to XMPlus config and inject reverse config into core instance for reverse proxy support."
+  }
+]

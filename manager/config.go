@@ -11,6 +11,7 @@ type Config struct {
 	InboundConfigPath  string            `mapstructure:"InboundConfigPath"`
 	OutboundConfigPath string            `mapstructure:"OutboundConfigPath"`
 	RouteConfigPath    string            `mapstructure:"RouteConfigPath"`
+	ReverseConfigPath  string            `mapstructure:"ReverseConfigPath"`
 	ConnectionConfig   *ConnectionConfig `mapstructure:"ConnectionConfig"`
 	NodesConfig        []*NodesConfig    `mapstructure:"Nodes"`
 }

@@ -83,4 +83,5 @@ Nodes:
 #        RedisPassword: YOUR PASSWORD # Redis password
 #        RedisDB: 0 # Redis DB
 #        Timeout: 5 # Timeout for redis request
-#        Expiry: 60 # Expiry time (second)  
+#        Expiry: 60 # Expiry time (second)
+ReverseConfigPath: ./files/reverse.json
