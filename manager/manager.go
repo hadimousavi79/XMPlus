@@ -131,6 +131,22 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 	corePolicyConfig.Levels = map[uint32]*conf.Policy{0: levelPolicyConfig}
 	policyConfig, _ := corePolicyConfig.Build()
 	
+	// Reverse config
+	coreReverseConfig := &conf.ReverseConfig{}
+	if managerConfig.ReverseConfigPath != "" {
+		if data, err := os.ReadFile(managerConfig.ReverseConfigPath); err != nil {
+			log.Panicf("Failed to read Reverse config file at: %s", managerConfig.ReverseConfigPath)
+		} else {
+			if err = json.Unmarshal(data, coreReverseConfig); err != nil {
+				log.Panicf("Failed to unmarshal Reverse config: %s", managerConfig.ReverseConfigPath)
+			}
+		}
+	}
+	reverseConfig, err := coreReverseConfig.Build()
+	if err != nil {
+		log.Panicf("Failed to understand Reverse config, Please check: https://xtls.github.io/config/reverse.html for help: %s", err)
+	}
+
 	// Build Core Config
 	config := &core.Config{
 		App: []*serial.TypedMessage{
@@ -142,6 +158,7 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 			serial.ToTypedMessage(policyConfig),
 			serial.ToTypedMessage(dnsConfig),
 			serial.ToTypedMessage(routeConfig),
+			serial.ToTypedMessage(reverseConfig),
 		},
 		Inbound:  inBoundConfig,
 		Outbound: outBoundConfig,
