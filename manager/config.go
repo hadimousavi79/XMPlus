@@ -12,6 +12,7 @@ type Config struct {
 	OutboundConfigPath string            `mapstructure:"OutboundConfigPath"`
 	RouteConfigPath    string            `mapstructure:"RouteConfigPath"`
 	ReverseConfigPath  string            `mapstructure:"ReverseConfigPath"`
+	ApiConfigPath      string            `mapstructure:"ApiConfigPath"`
 	ConnectionConfig   *ConnectionConfig `mapstructure:"ConnectionConfig"`
 	NodesConfig        []*NodesConfig    `mapstructure:"Nodes"`
 }
@@ -22,10 +23,10 @@ type NodesConfig struct {
 }
 
 type LogConfig struct {
-	Level      string `mapstructure:"Level"`
-	AccessPath string `mapstructure:"AccessPath"`
-	ErrorPath  string `mapstructure:"ErrorPath"`
-	DNSLog     bool   `mapstructure:"DNSLog"`
+	Level       string `mapstructure:"Level"`
+	AccessPath  string `mapstructure:"AccessPath"`
+	ErrorPath   string `mapstructure:"ErrorPath"`
+	DNSLog      bool   `mapstructure:"DNSLog"`
 	MaskAddress string `mapstructure:"MaskAddress"`
 }
 

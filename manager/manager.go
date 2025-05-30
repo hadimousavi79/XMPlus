@@ -25,11 +25,11 @@ import (
 
 // Manager Structure
 type Manager struct {
-	statusLock   sync.Mutex
+	statusLock    sync.Mutex
 	managerConfig *Config
-	Server      *core.Instance
-	Service     []service.Service
-	Running     bool
+	Server        *core.Instance
+	Service       []service.Service
+	Running       bool
 }
 
 func New(managerConfig *Config) *Manager {
@@ -63,7 +63,7 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 			}
 		}
 	}
-	
+
 	dnsConfig, err := coreDnsConfig.Build()
 	if err != nil {
 		log.Panicf("Failed to understand DNS config, Please check: https://xtls.github.io/config/dns.html for help: %s", err)
@@ -84,7 +84,7 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 	if err != nil {
 		log.Panicf("Failed to understand Routing config  Please check: https://xtls.github.io/config/routing.html for help: %s", err)
 	}
-	
+
 	// Custom Inbound config
 	var coreCustomInboundConfig []conf.InboundDetourConfig
 	if managerConfig.InboundConfigPath != "" {
@@ -104,7 +104,7 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 		}
 		inBoundConfig = append(inBoundConfig, oc)
 	}
-	
+
 	// Custom Outbound config
 	var coreCustomOutboundConfig []conf.OutboundDetourConfig
 	if managerConfig.OutboundConfigPath != "" {
@@ -124,13 +124,13 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 		}
 		outBoundConfig = append(outBoundConfig, oc)
 	}
-	
+
 	// Policy config
 	levelPolicyConfig := parseConnectionConfig(managerConfig.ConnectionConfig)
 	corePolicyConfig := &conf.PolicyConfig{}
 	corePolicyConfig.Levels = map[uint32]*conf.Policy{0: levelPolicyConfig}
 	policyConfig, _ := corePolicyConfig.Build()
-	
+
 	// Reverse config
 	coreReverseConfig := &conf.ReverseConfig{}
 	if managerConfig.ReverseConfigPath != "" {
@@ -145,6 +145,24 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 	reverseConfig, err := coreReverseConfig.Build()
 	if err != nil {
 		log.Panicf("Failed to understand Reverse config, Please check: https://xtls.github.io/config/reverse.html for help: %s", err)
+	}
+
+	// API config
+	coreAPIConfig := &conf.APIConfig{}
+	var apiConfigMsg *serial.TypedMessage
+	if managerConfig.ApiConfigPath != "" {
+		if data, err := os.ReadFile(managerConfig.ApiConfigPath); err != nil {
+			log.Panicf("Failed to read API config file at: %s", managerConfig.ApiConfigPath)
+		} else {
+			if err = json.Unmarshal(data, coreAPIConfig); err != nil {
+				log.Panicf("Failed to unmarshal API config: %s", managerConfig.ApiConfigPath)
+			}
+		}
+		apiConfig, err := coreAPIConfig.Build()
+		if err != nil {
+			log.Panicf("Failed to understand API config, Please check: https://xtls.github.io/config/api.html for help: %s", err)
+		}
+		apiConfigMsg = serial.ToTypedMessage(apiConfig)
 	}
 
 	// Build Core Config
@@ -163,12 +181,15 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 		Inbound:  inBoundConfig,
 		Outbound: outBoundConfig,
 	}
-	
+	if apiConfigMsg != nil {
+		config.App = append(config.App, apiConfigMsg)
+	}
+
 	server, err := core.New(config)
 	if err != nil {
 		log.Panicf("failed to create instance: %s", err)
 	}
-	
+
 	//log.Printf("Core Version: %s", core.Version())
 
 	return server
@@ -189,7 +210,7 @@ func (m *Manager) Start() {
 	for _, nodeConfig := range m.managerConfig.NodesConfig {
 		var apiClient api.API
 		apiClient = xmplus.New(nodeConfig.ApiConfig)
-		
+
 		var controllerService service.Service
 		// Register controller service
 		controllerConfig := getDefaultControllerConfig()

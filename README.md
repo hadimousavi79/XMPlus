@@ -270,3 +270,98 @@ Nodes:
   "publickey": "7xhH4b_VkliBxGulljcyPOH-bYUA2dl-XAdZAsfhk04"
 }
 ```
+
+---
+
+## API Feature Support (gRPC Management)
+
+XMPlus now supports the xray-core API block for gRPC management, stats, and dynamic routing. To enable:
+
+1. **Add `ApiConfigPath` to your `config.yml`:**
+   ```yaml
+   ApiConfigPath: ./files/api.json
+   ```
+2. **Create `api.json` (example):**
+   ```json
+   {
+     "tag": "api",
+     "services": ["HandlerService", "StatsService"]
+   }
+   ```
+3. **Add an inbound for API (e.g., gRPC) in `inbound.json`:**
+   ```json
+   [
+     {
+       "tag": "api-in",
+       "protocol": "grpc",
+       "port": 10085,
+       "listen": "127.0.0.1",
+       "settings": {}
+     }
+   ]
+   ```
+4. **Add an outbound for API in `outbound.json`:**
+   ```json
+   [
+     {
+       "tag": "api",
+       "protocol": "freedom",
+       "settings": {}
+     }
+   ]
+   ```
+5. **Add a routing rule in `route.json`:**
+   ```json
+   {
+     "rules": [
+       {
+         "inboundTag": ["api-in"],
+         "outboundTag": "api",
+         "type": "field"
+       }
+     ]
+   }
+   ```
+
+**References:**
+- [Xray-core API config documentation](https://xtls.github.io/config/api.html)
+- [Xray-core Routing config documentation](https://xtls.github.io/config/routing.html)
+
+This enables remote management and stats via gRPC (e.g., for use with XrayR/Xray API clients).
+
+---
+
+## API Feature Documentation
+
+### What is the API Feature?
+The API feature in XMPlus (compatible with xray-core) enables remote management, dynamic configuration, and statistics collection via gRPC. This is useful for advanced deployments, automation, monitoring, and integration with control panels or orchestration tools.
+
+### When should I use it?
+- If you want to manage inbounds/outbounds, routing rules, or query traffic stats at runtime.
+- If you use a panel or automation tool that requires gRPC access to the core.
+- If you want to script or remotely control your XMPlus instance.
+
+### How does it work?
+- The API block (see `api.json`) defines which gRPC services are enabled (e.g., HandlerService, StatsService).
+- You must expose an inbound (usually gRPC) and outbound for the API, and route API traffic using a routing rule.
+- Once enabled, you can use compatible clients or tools to connect to the API port and perform management actions.
+
+### Example Use Cases
+- Query real-time traffic stats for users or inbounds.
+- Dynamically add/remove inbounds, outbounds, or routing rules without restarting XMPlus.
+- Integrate with a web panel for live server management.
+
+### Troubleshooting & FAQ
+- **Q: My API port is not accessible?**
+  - Ensure you have an inbound (e.g., gRPC) listening on the correct port and routed to the API outbound.
+  - Check firewall and network settings.
+- **Q: I get permission or service errors?**
+  - Make sure the `services` array in `api.json` includes the required services (e.g., HandlerService, StatsService).
+- **Q: How do I test the API?**
+  - Use `grpcurl`, `xray api` commands, or compatible panel software to connect to the API port.
+- **Q: Can I use HTTP instead of gRPC?**
+  - No, the API feature is gRPC-based. Use a gRPC client.
+- **Q: Where can I find more info?**
+  - See the [Xray-core API documentation](https://xtls.github.io/config/api.html) and [Routing documentation](https://xtls.github.io/config/routing.html).
+
+---

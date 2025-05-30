@@ -1,0 +1,10 @@
+{
+  "tag": "api",
+  "services": [
+    "HandlerService",
+    "StatsService"
+  ]
+}
+// Example API config for XMPlus/xray-core. See https://xtls.github.io/config/api.html
+// To use, set ApiConfigPath: ./files/api.json in config.yml
+// You must also add an inbound (e.g. gRPC) and outbound for the API, and a routing rule linking them.
