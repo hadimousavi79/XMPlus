@@ -85,3 +85,22 @@ Nodes:
 #        Timeout: 5 # Timeout for redis request
 #        Expiry: 60 # Expiry time (second)
 ReverseConfigPath: ./files/reverse.json
+ApiConfigPath: # /etc/XMPlus/api.json   # https://xtls.github.io/config/api.html
+# Example:
+# ApiConfigPath: ./files/api.json
+# This enables the API feature (gRPC) for core management, stats, etc.
+# See https://xtls.github.io/config/api.html for details.
+#
+# Typical api.json example:
+# {
+#   "tag": "api",
+#   "services": ["HandlerService", "StatsService"]
+# }
+#
+# You must also add an inbound and outbound for the API, and routing rules, e.g.:
+#   - inbound tag: "api-in"
+#   - outbound tag: "api"
+#   - routing rule: { "inboundTag": ["api-in"], "outboundTag": "api", "type": "field" }
+#
+# See the provided api.json for a working example.
+#
